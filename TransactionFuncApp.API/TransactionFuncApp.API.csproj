@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>11</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.*" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.*" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.OpenApi" Version="2.*" />
+    <PackageReference Include="FluentValidation" Version="11.*" />
+    <PackageReference Include="System.Text.Json" Version="8.*" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
+  </ItemGroup>
+
+</Project>
