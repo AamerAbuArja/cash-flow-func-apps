@@ -1,0 +1,1 @@
+Short notes: configure ServiceBusConnectionString, set WORKER_BASE_URL if you want GET proxying (optional), set function keys or Azure AD for security.
