@@ -13,10 +13,10 @@
     <SourceRoot Include="C:\Users\ONE BY ONE\.nuget\packages\" />
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <Import Project="$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\1.18.1\build\Microsoft.Azure.Functions.Worker.Sdk.props" Condition="Exists('$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\1.18.1\build\Microsoft.Azure.Functions.Worker.Sdk.props')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\1.17.4\build\Microsoft.Azure.Functions.Worker.Sdk.props" Condition="Exists('$(NuGetPackageRoot)microsoft.azure.functions.worker.sdk\1.17.4\build\Microsoft.Azure.Functions.Worker.Sdk.props')" />
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgMicrosoft_Azure_Functions_Worker_Sdk_Analyzers Condition=" '$(PkgMicrosoft_Azure_Functions_Worker_Sdk_Analyzers)' == '' ">C:\Users\ONE BY ONE\.nuget\packages\microsoft.azure.functions.worker.sdk.analyzers\1.2.1</PkgMicrosoft_Azure_Functions_Worker_Sdk_Analyzers>
-    <PkgMicrosoft_Azure_Functions_Worker_Sdk Condition=" '$(PkgMicrosoft_Azure_Functions_Worker_Sdk)' == '' ">C:\Users\ONE BY ONE\.nuget\packages\microsoft.azure.functions.worker.sdk\1.18.1</PkgMicrosoft_Azure_Functions_Worker_Sdk>
+    <PkgMicrosoft_Azure_Functions_Worker_Sdk Condition=" '$(PkgMicrosoft_Azure_Functions_Worker_Sdk)' == '' ">C:\Users\ONE BY ONE\.nuget\packages\microsoft.azure.functions.worker.sdk\1.17.4</PkgMicrosoft_Azure_Functions_Worker_Sdk>
   </PropertyGroup>
 </Project>

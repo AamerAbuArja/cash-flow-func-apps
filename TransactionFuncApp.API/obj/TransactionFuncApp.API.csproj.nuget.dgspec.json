@@ -45,32 +45,31 @@
           "dependencies": {
             "FluentValidation": {
               "target": "Package",
-              "version": "[11.*, )"
+              "version": "[11.9.0, )"
             },
             "Microsoft.Azure.Functions.Worker": {
               "target": "Package",
-              "version": "[1.*, )"
+              "version": "[1.21.0, )"
             },
             "Microsoft.Azure.Functions.Worker.Extensions.OpenApi": {
               "target": "Package",
-              "version": "[2.0.0-preview2, )"
+              "version": "[1.6.0, )"
             },
             "Microsoft.Azure.Functions.Worker.Extensions.ServiceBus": {
               "target": "Package",
-              "version": "[5.*, )"
+              "version": "[5.15.0, )"
             },
             "Microsoft.Azure.Functions.Worker.Sdk": {
-              "suppressParent": "All",
               "target": "Package",
-              "version": "[1.*, )"
+              "version": "[1.17.4, )"
             },
             "Microsoft.Extensions.Http": {
               "target": "Package",
-              "version": "[8.*, )"
+              "version": "[8.0.0, )"
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[8.*, )"
+              "version": "[8.0.5, )"
             }
           },
           "imports": [

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Azure.Messaging.ServiceBus;
 using FluentValidation;
 using System;
 
@@ -14,6 +15,12 @@ var host = new HostBuilder()
                 if (!string.IsNullOrEmpty(baseUrl))
                     c.BaseAddress = new Uri(baseUrl);
             });
+
+        var sbConn = context.Configuration["ServiceBusConnectionString"] ?? "";
+        if (!string.IsNullOrEmpty(sbConn))
+        {
+            services.AddSingleton(sp => new ServiceBusClient(sbConn));
+        }
 
         services.AddScoped<IValidator<TransactionDto>, TransactionDtoValidator>();
     })
