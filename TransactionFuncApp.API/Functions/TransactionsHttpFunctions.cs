@@ -30,16 +30,14 @@ public class TransactionsHttpFunctions
 		var dto = await req.ReadFromJsonAsync<TransactionDto>();
 		if (dto == null)
 		{
-			await WriteBadRequestAsync(req, "Invalid request body");
-			return null;
+			return await WriteBadRequestAsync(req, "Invalid request body");
 		}
 
 		// Validate input
 		var validation = await _validator.ValidateAsync(dto);
 		if (!validation.IsValid)
 		{
-			await WriteBadRequestAsync(req, JsonSerializer.Serialize(validation.Errors));
-			return null;
+			return await WriteBadRequestAsync(req, JsonSerializer.Serialize(validation.Errors));
 		}
 
 		// Prepare envelope for Service Bus
