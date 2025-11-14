@@ -1,0 +1,6 @@
+D:\cash-flow-forecasting\cash-flow-func-apps\TransactionFuncApp.Worker\obj\Debug\net8.0\TransactionFuncApp.Worker.csproj.AssemblyReference.cache
+D:\cash-flow-forecasting\cash-flow-func-apps\TransactionFuncApp.Worker\obj\Debug\net8.0\TransactionFuncApp.Worker.GeneratedMSBuildEditorConfig.editorconfig
+D:\cash-flow-forecasting\cash-flow-func-apps\TransactionFuncApp.Worker\obj\Debug\net8.0\TransactionFuncApp.Worker.AssemblyInfoInputs.cache
+D:\cash-flow-forecasting\cash-flow-func-apps\TransactionFuncApp.Worker\obj\Debug\net8.0\TransactionFuncApp.Worker.AssemblyInfo.cs
+D:\cash-flow-forecasting\cash-flow-func-apps\TransactionFuncApp.Worker\obj\Debug\net8.0\TransactionFuncApp.Worker.csproj.CoreCompileInputs.cache
+D:\cash-flow-forecasting\cash-flow-func-apps\TransactionFuncApp.Worker\obj\Debug\net8.0\TransactionFuncApp.Worker.sourcelink.json
