@@ -1,0 +1,142 @@
+# ============================================
+#   Core .NET / C# ignore rules
+# ============================================
+
+# Build results
+bin/
+obj/
+out/
+release/
+Debug/
+x64/
+x86/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+
+# .NET user files
+*.user
+*.suo
+*.userosscache
+*.userprefs
+
+# VS Code settings (optional)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# Visual Studio settings
+.vs/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+*.nuspec
+project.lock.json
+project.assets.json
+
+# Dotnet restore artifacts
+artifacts/
+*.deps.json
+*.runtimeconfig.json
+
+# ============================================
+#   Azure Functions Specific
+# ============================================
+
+# Local settings (DO NOT COMMIT SECRETS)
+local.settings.json
+
+# Azure Functions Core Tools artifacts
+bin/
+obj/
+extensions.csproj
+appsettings.Development.json
+
+# ============================================
+#   Logs / Crash Dumps
+# ============================================
+
+*.log
+*.tlog
+*.svclog
+*.pid
+*.seed
+*.mdb
+*.dmp
+
+# ============================================
+#   OS generated files
+# ============================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.cache/
+*.swp
+
+# ============================================
+#   GitHub Actions
+# ============================================
+
+# Temporary workflow artifacts
+.github/workflows/*.json
+*.publishsettings
+*.azurepubxml
+
+# ============================================
+#   JetBrains Rider
+# ============================================
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# ============================================
+#   Terraform / IaC (if added later)
+# ============================================
+
+*.tfstate
+*.tfstate.backup
+.terraform/
+crash.log
+
+# ============================================
+#   Generated files (OpenAPI, etc.)
+# ============================================
+
+openapi.json
+openapi.yaml
+swagger.json
+
+# ============================================
+#   Node modules (if frontend ever gets added)
+# ============================================
+
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# ============================================
+#   Python (if scripts are added)
+# ============================================
+
+__pycache__/
+*.pyc
