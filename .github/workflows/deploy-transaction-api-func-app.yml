@@ -1,0 +1,50 @@
+name: Deploy Transaction API Function App (API Gateway & Validator)
+
+on:
+  workflow_call:
+  push:
+    paths:
+      - "TransactionFuncApp.API/**"
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Restore dependencies
+        run: dotnet restore TransactionFuncApp.API/TransactionFuncApp.API.csproj
+
+      - name: Build project
+        run: dotnet build TransactionFuncApp.API/TransactionFuncApp.API.csproj --configuration Release
+
+      - name: Publish project
+        run: dotnet publish TransactionFuncApp.API/TransactionFuncApp.API.csproj -c Release -o publish_output
+
+      - name: Deploy to Transaction API Func App
+        uses: azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'Transaction-API'
+          package: ./publish_output/

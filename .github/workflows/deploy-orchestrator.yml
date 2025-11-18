@@ -1,0 +1,17 @@
+name: Deploy All Function Apps
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "TransactionFuncApp.*/**"
+
+jobs:
+  deploy-tran-api:
+    uses: ./.github/workflows/deploy-transaction-api-func-app.yml
+
+  deploy-tran-worker:
+    needs: deploy-tran-api
+    uses: ./.github/workflows/deploy-transaction-worker-func-app.yml
