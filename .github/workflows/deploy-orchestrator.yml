@@ -7,6 +7,10 @@ on:
       - "TransactionFuncApp.*/**"
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy-transaction-api:
     uses: ./.github/workflows/deploy-transaction-api-func-app.yml
