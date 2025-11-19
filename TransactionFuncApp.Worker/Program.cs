@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Polly;
 using Polly.Retry;
 using System;
+using FluentValidation;
 
 var host = new HostBuilder()
 	.ConfigureFunctionsWorkerDefaults()
