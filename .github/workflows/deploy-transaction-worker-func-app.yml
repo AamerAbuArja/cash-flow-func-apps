@@ -1,13 +1,7 @@
-name: Deploy Transaction Worker Func App (Worker Processor)
+name: Deploy Transaction Worker Function App
 
 on:
   workflow_call:
-  push:
-    paths:
-      - "TransactionFuncApp.Worker/**"
-    branches:
-      - main
-  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -15,14 +9,15 @@ permissions:
 
 env:
   DOTNET_VERSION: "8.0.x"
+  PROJECT_PATH: TransactionFuncApp.Worker/TransactionFuncApp.Worker.csproj
+  APP_NAME: "Transaction-Worker"
 
 jobs:
   build-and-deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -36,17 +31,16 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Restore dependencies
-        run: dotnet restore TransactionFuncApp.Worker/TransactionFuncApp.Worker.csproj
+        run: dotnet restore ${{ env.PROJECT_PATH }}
 
       - name: Build project
-        run: dotnet build TransactionFuncApp.Worker/TransactionFuncApp.Worker.csproj --configuration Release
+        run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release
 
       - name: Publish project
-        run: dotnet publish TransactionFuncApp.Worker/TransactionFuncApp.Worker.csproj -c Release -o publish_output
+        run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish_output
 
-      - name: Deploy to Transaction Worker Func App
+      - name: Deploy to Worker Function App
         uses: azure/functions-action@v1
-        id: fa
         with:
-          app-name: 'Transaction-Worker'
+          app-name: ${{ env.APP_NAME }}
           package: ./publish_output/
