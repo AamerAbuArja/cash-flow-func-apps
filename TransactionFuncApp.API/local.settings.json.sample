@@ -1,9 +1,0 @@
-{
-  "IsEncrypted": false,
-  "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "AzureWebJobsStorage": "<storage-connection-string>",
-    "ServiceBusConnectionString": "<your-service-bus-conn-string>",
-    "WORKER_BASE_URL": "https://funcapp-b.azurewebsites.net"
-  }
-}
