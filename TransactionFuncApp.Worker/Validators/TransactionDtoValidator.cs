@@ -38,13 +38,13 @@ public class TransactionDtoValidator : AbstractValidator<TransactionDto>
                 .NotNull()
                 .Must(i => i.Count > 0).WithMessage("installments must have at least one item");
 
-            RuleForEach(x => x.Installments!)
-                .ChildRules(installment =>
-                {
-                    installment.RuleFor(i => i.Number).GreaterThan(0);
-                    installment.RuleFor(i => i.Amount).GreaterThan(0);
-                    installment.RuleFor(i => i.DueDate).GreaterThan(DateTime.UtcNow.AddDays(-1));
-                });
+            // RuleForEach(x => x.Installments!)
+            //     .ChildRules(installment =>
+            //     {
+            //         installment.RuleFor(i => i.Number).GreaterThan(0);
+            //         installment.RuleFor(i => i.Amount).GreaterThan(0);
+            //         installment.RuleFor(i => i.DueDate).GreaterThan(DateTime.UtcNow.AddDays(-1));
+            //     });
         });
     }
 }
