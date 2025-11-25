@@ -26,7 +26,7 @@ var host = new HostBuilder()
 			});
 		services.AddSingleton(retryPolicy);
 
-		services.AddScoped<IValidator<TransactionDto>, TransactionDtoValidator>();
+		//services.AddScoped<IValidator<TransactionDto>, TransactionDtoValidator>();
 	})
 	.Build();
 

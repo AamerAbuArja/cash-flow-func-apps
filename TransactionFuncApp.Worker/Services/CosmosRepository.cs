@@ -6,65 +6,117 @@ using System.Collections.Generic;
 
 public class CosmosRepository
 {
-    private readonly CosmosClient _client;
     private readonly Container _container;
     private readonly string _databaseId;
     private readonly string _containerId;
 
     public CosmosRepository(CosmosClient client, Microsoft.Extensions.Configuration.IConfiguration config)
     {
-        _client = client;
-        _databaseId = config["Cosmos__DatabaseId"] ?? "transactions-db";
-        _containerId = config["Cosmos__ContainerId"] ?? "transactions";
+        _databaseId = config["Cosmos__DatabaseId"] ?? "CashflowDB";
+        _containerId = config["Cosmos__ContainerId"] ?? "Transaction";
 
-        // ensure DB & container exist (idempotent)
-        var db = _client.CreateDatabaseIfNotExistsAsync(_databaseId).GetAwaiter().GetResult();
+        // Create database
+        var db = client.CreateDatabaseIfNotExistsAsync(_databaseId)
+                       .GetAwaiter().GetResult();
+
+        // Create container with HIERARCHICAL partition keys
         var containerResponse = db.Database.CreateContainerIfNotExistsAsync(
-            new ContainerProperties {
+            new ContainerProperties
+            {
                 Id = _containerId,
-                PartitionKeyPath = "/CompanyId"
+                PartitionKeyPaths = new List<string>
+                {
+                    "/TenantId",
+                    "/CompanyId"
+                }
             }).GetAwaiter().GetResult();
+
         _container = containerResponse.Container;
     }
 
-    public async Task UpsertTransactionAsync(TransactionDto t)
+    // Build hierarchical PK
+    private static PartitionKey BuildPk(string tenantId, string companyId)
     {
-        // Idempotent upsert keyed by Id
-        await _container.UpsertItemAsync(t, new PartitionKey(t.CompanyId));
+        return new PartitionKeyBuilder()
+            .Add(tenantId)
+            .Add(companyId)
+            .Build();
     }
 
-    public async Task DeleteTransactionAsync(string id, string companyId)
+    private static PartitionKey BuildPk(TransactionDto t)
+    {
+        return BuildPk(t.TenantId, t.CompanyId);
+    }
+
+    // --------------------------
+    // Upsert
+    // --------------------------
+
+    public async Task UpsertTransactionAsync(TransactionDto t)
+    {
+        await _container.UpsertItemAsync(
+            t,
+            BuildPk(t)
+        );
+    }
+
+    // --------------------------
+    // Delete
+    // --------------------------
+
+    public async Task DeleteTransactionAsync(string id, string tenantId, string companyId)
     {
         try
         {
-            await _container.DeleteItemAsync<TransactionDto>(id, new PartitionKey(companyId));
+            await _container.DeleteItemAsync<TransactionDto>(id, BuildPk(tenantId, companyId));
         }
         catch (CosmosException ce) when (ce.StatusCode == HttpStatusCode.NotFound)
         {
-            // already gone — ignore
+            // ignore
         }
     }
 
-    public async Task<List<TransactionDto>> QueryTransactionsAsync(string companyId, int? top = 100)
+    // --------------------------
+    // Query by company
+    // --------------------------
+
+    public async Task<List<TransactionDto>> QueryTransactionsAsync(string tenantId, string companyId, int? top = 100)
     {
-        var q = new QueryDefinition("SELECT * FROM c WHERE c.CompanyId = @companyId")
+        var pk = BuildPk(tenantId, companyId);
+
+        var q = new QueryDefinition(
+            "SELECT * FROM c WHERE c.TenantId = @tenantId AND c.CompanyId = @companyId")
+            .WithParameter("@tenantId", tenantId)
             .WithParameter("@companyId", companyId);
 
-        var it = _container.GetItemQueryIterator<TransactionDto>(q, requestOptions: new QueryRequestOptions { PartitionKey = new PartitionKey(companyId), MaxItemCount = top });
+        var it = _container.GetItemQueryIterator<TransactionDto>(
+            q,
+            requestOptions: new QueryRequestOptions
+            {
+                PartitionKey = pk,
+                MaxItemCount = top
+            });
+
         var results = new List<TransactionDto>();
+
         while (it.HasMoreResults)
         {
             var page = await it.ReadNextAsync();
             results.AddRange(page);
         }
+
         return results;
     }
 
-    public async Task<TransactionDto?> GetByIdAsync(string id, string companyId)
+    // --------------------------
+    // Get by Id
+    // --------------------------
+
+    public async Task<TransactionDto?> GetByIdAsync(string id, string tenantId, string companyId)
     {
         try
         {
-            var resp = await _container.ReadItemAsync<TransactionDto>(id, new PartitionKey(companyId));
+            var resp = await _container.ReadItemAsync<TransactionDto>(id, BuildPk(tenantId, companyId));
             return resp.Resource;
         }
         catch (CosmosException ce) when (ce.StatusCode == HttpStatusCode.NotFound)
@@ -73,10 +125,15 @@ public class CosmosRepository
         }
     }
 
+    // --------------------------
+    // Bulk Insert
+    // --------------------------
+
     public async Task BulkInsertAsync(IEnumerable<TransactionDto> items)
     {
-        // naive bulk (you can use Bulk mode SDK or transactional batches)
         foreach (var t in items)
+        {
             await UpsertTransactionAsync(t);
+        }
     }
 }
