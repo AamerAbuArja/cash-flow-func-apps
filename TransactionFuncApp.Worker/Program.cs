@@ -11,7 +11,7 @@ var host = new HostBuilder()
 	.ConfigureServices((context, services) =>
 	{
 		// Register Cosmos client
-		var cosmosConn = context.Configuration["Cosmos__ConnectionString"] ?? throw new ArgumentNullException("Cosmos__ConnectionString");
+		var cosmosConn = context.Configuration["Cosmos:ConnectionString"] ?? throw new ArgumentNullException("Cosmos:ConnectionString");
 		services.AddSingleton(new CosmosClient(cosmosConn));
 
 		// Register repo
