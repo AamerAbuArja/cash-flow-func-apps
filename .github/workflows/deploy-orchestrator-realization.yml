@@ -1,0 +1,22 @@
+name: Deploy All Function Apps
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "RealizationsFuncApp.*/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-realization-api:
+    uses: ./.github/workflows/deploy-realization-api-func-app.yml
+    secrets: inherit
+
+  deploy-realization-worker:
+    needs: deploy-realization-api
+    uses: ./.github/workflows/deploy-realization-worker-func-app.yml
+    secrets: inherit

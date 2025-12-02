@@ -1,0 +1,46 @@
+name: Deploy Realization API Function App
+
+on:
+  workflow_call:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_PATH: RealizationFuncApp.API/RealizationFuncApp.API.csproj
+  APP_NAME: "Realization-API"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build project
+        run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release
+
+      - name: Publish project
+        run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish_output
+
+      - name: Deploy to API Function App
+        uses: azure/functions-action@v1
+        with:
+          app-name: ${{ env.APP_NAME }}
+          package: ./publish_output/
