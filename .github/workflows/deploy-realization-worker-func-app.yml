@@ -9,7 +9,7 @@ permissions:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  PROJECT_PATH: RealizationFuncApp.Worker/RealizationFuncApp.Worker.csproj
+  PROJECT_PATH: RealizationsFuncApp.Worker/RealizationsFuncApp.Worker.csproj
   APP_NAME: "Realization-Worker"
 
 jobs:

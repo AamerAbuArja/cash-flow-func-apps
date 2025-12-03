@@ -5,7 +5,6 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices((context, services) =>
     {
-        // Add Cosmos DB service
         var cosmosEndpoint = Environment.GetEnvironmentVariable("COSMOS_ENDPOINT")
                              ?? throw new InvalidOperationException("COSMOS_ENDPOINT missing");
         var cosmosKey = Environment.GetEnvironmentVariable("COSMOS_KEY")
