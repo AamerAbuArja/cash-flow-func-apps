@@ -39,7 +39,7 @@ jobs:
       - name: Publish project
         run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish_output
 
-      - name: Deploy to API Function App
+      - name: Deploy to Realization API Function App
         uses: azure/functions-action@v1
         with:
           app-name: ${{ env.APP_NAME }}

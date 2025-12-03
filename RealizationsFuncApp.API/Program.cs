@@ -7,6 +7,7 @@ var host = new HostBuilder()
     .ConfigureServices((context, services) =>
     {
         // register validator and publisher via configuration
+        // Add Validator
         services.AddSingleton<RealizationValidator>();
 
         var sbConn = Environment.GetEnvironmentVariable("SERVICEBUS_CONNECTION")
