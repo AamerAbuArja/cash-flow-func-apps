@@ -12,7 +12,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.14.1" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.16.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.16.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions" Version="1.5.0" />
+    <!-- <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions" Version="1.5.0" /> -->
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageReference Include="Azure.Cosmos" Version="3.38.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
