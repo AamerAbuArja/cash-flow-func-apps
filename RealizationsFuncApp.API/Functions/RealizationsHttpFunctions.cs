@@ -9,8 +9,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Azure.Messaging.ServiceBus;
 
 using FluentValidation;
-using RealizationsFuncApp.Worker.Models;
-using RealizationsFuncApp.Worker.Validators;
+using RealizationsFuncApp.API.Models;
+using RealizationsFuncApp.API.Validators;
 
 public class RealizationsHttpFunctions
 {
