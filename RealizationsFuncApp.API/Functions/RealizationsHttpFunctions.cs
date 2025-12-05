@@ -1,11 +1,16 @@
+using System;
 using System.Net;
 using System.Text.Json;
-using FluentValidation;
+using System.Threading.Tasks;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using System.Threading.Tasks;
-using System;
+
 using Azure.Messaging.ServiceBus;
+
+using FluentValidation;
+using RealizationsFuncApp.Worker.Models;
+using RealizationsFuncApp.Worker.Validators;
 
 public class RealizationsHttpFunctions
 {
