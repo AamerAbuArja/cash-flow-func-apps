@@ -43,6 +43,26 @@ public class CosmosRepository<T> : ICosmosRepository<T>
         return list;
     }
 
+    public async Task<IEnumerable<T>> QueryAsync(QueryDefinition query, string partitionKey)
+    {
+        var it = _container.GetItemQueryIterator<T>(
+            query,
+            requestOptions: new QueryRequestOptions
+            {
+                PartitionKey = new PartitionKey(partitionKey)
+            });
+
+        var list = new List<T>();
+
+        while (it.HasMoreResults)
+        {
+            var feed = await it.ReadNextAsync();
+            list.AddRange(feed);
+        }
+
+        return list;
+    }
+
     public async Task CreateAsync(T entity, string partitionKey)
     {
         await _container.CreateItemAsync(entity, new PartitionKey(partitionKey));
