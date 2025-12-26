@@ -1,0 +1,10 @@
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "Function.AggregateRealizations": "Information",
+      "Host.Results": "Information",
+      "Host.Aggregator": "Information"
+    }
+  }
+}

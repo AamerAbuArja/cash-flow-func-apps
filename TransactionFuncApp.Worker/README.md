@@ -1,1 +1,0 @@
-Short notes: set Cosmos settings, ServiceBus connection, mention partitions by CompanyId, recommend setting MaxDeliveryCount and DLQ monitoring.
