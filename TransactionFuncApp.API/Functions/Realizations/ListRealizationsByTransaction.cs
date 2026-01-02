@@ -13,7 +13,7 @@ public class ListRealizationsByTransaction
     [Function("ListRealizationsByTransaction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}/realizations")] HttpRequestData req, string tenantId, string companyId, string transactionId)
     {
-        var list = await _service.ListByTransactionAsync(tenantId, transactionId);
+        var list = await _service.ListByTransactionAsync(tenantId, companyId, transactionId);
         var res = req.CreateResponse(HttpStatusCode.OK);
         await res.WriteAsJsonAsync(list);
         return res;
