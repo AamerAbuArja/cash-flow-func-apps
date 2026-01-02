@@ -85,10 +85,11 @@ public class RealizationService : IRealizationService
         await _repo.DeleteAsync(realizationId, tenantId);
     }
 
-    public async Task<IEnumerable<Realization>> ListByTransactionAsync(string tenantId, string transactionId)
+    public async Task<IEnumerable<Realization>> ListByTransactionAsync(string tenantId, string companyId, string transactionId)
     {
         var query = new QueryDefinition(
-            "SELECT * FROM c WHERE c.transactionId = @transactionId")
+            "SELECT * FROM c WHERE c.companyId = @companyId AND c.transactionId = @transactionId")
+            .WithParameter("@companyId", companyId)
             .WithParameter("@transactionId", transactionId);
 
         return await _repo.QueryAsync(query, tenantId);

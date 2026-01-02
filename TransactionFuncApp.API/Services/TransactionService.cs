@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.Azure.Cosmos;
 using TransactionFuncApp.API.DTOs;
 using TransactionFuncApp.API.Models;
 using TransactionFuncApp.API.Repositories;
@@ -98,8 +99,12 @@ public class TransactionService : ITransactionService
 
     public async Task<IEnumerable<Transaction>> ListByCompanyAsync(string tenantId, string companyId)
     {
-        string q = "SELECT * FROM c WHERE c.companyId = @companyId";
-        var list = await _trxRepo.QueryAsync(q, tenantId, new Dictionary<string, object> { { "companyId", companyId } });
+        
+        var query = new QueryDefinition(
+            "SELECT * FROM c WHERE c.companyId = @companyId")
+            .WithParameter("@companyId", companyId);
+
+        var list = await _trxRepo.QueryAsync(query, tenantId);
         return list;
     }
 

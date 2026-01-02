@@ -10,5 +10,5 @@ public interface IRealizationService
     Task<Realization?> UpdateAsync(string tenantId, string companyId, string transactionId, string realizationId, UpdateRealizationRequest dto);
     Task DeleteAsync(string tenantId, string companyId, string transactionId, string realizationId);
 
-    Task<IEnumerable<Realization>> ListByTransactionAsync(string tenantId, string transactionId);
+    Task<IEnumerable<Realization>> ListByTransactionAsync(string tenantId, string companyId, string transactionId);
 }
