@@ -1,4 +1,4 @@
-name: Deploy Realization API Function App
+name: Deploy Aggregation Function App
 
 on:
   workflow_call:
@@ -9,8 +9,8 @@ permissions:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  PROJECT_PATH: RealizationsFuncApp.API/RealizationsFuncApp.API.csproj
-  APP_NAME: "Realization-API"
+  PROJECT_PATH: AggregationFuncApp/AggregationFuncApp.csproj
+  APP_NAME: "Aggregation"
 
 jobs:
   build-and-deploy:
@@ -39,7 +39,7 @@ jobs:
       - name: Publish project
         run: dotnet publish ${{ env.PROJECT_PATH }} -c Release -o publish_output
 
-      - name: Deploy to Realization API Function App
+      - name: Deploy to Aggregation Function App
         uses: azure/functions-action@v1
         with:
           app-name: ${{ env.APP_NAME }}

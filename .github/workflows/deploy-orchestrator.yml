@@ -16,7 +16,3 @@ jobs:
     uses: ./.github/workflows/deploy-transaction-api-func-app.yml
     secrets: inherit
 
-  deploy-transaction-worker:
-    needs: deploy-transaction-api
-    uses: ./.github/workflows/deploy-transaction-worker-func-app.yml
-    secrets: inherit
