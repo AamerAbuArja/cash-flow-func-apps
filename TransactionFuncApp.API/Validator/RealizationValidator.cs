@@ -1,7 +1,7 @@
 using FluentValidation;
 using TransactionFuncApp.API.DTOs;
 
-namespace TransactionFuncApp.Validators;
+namespace TransactionFuncApp.API.Validators;
 
 public class RealizationValidator : AbstractValidator<CreateRealizationRequest>
 {

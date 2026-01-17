@@ -1,99 +1,71 @@
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TransactionFuncApp.API.Models;
+using Microsoft.Azure.Functions.Worker;
+using FluentValidation;
 using TransactionFuncApp.API.Repositories;
 using TransactionFuncApp.API.Services;
 using TransactionFuncApp.API.Validators;
+using TransactionFuncApp.API.Models;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        /*
-         * CosmosClient
-         * Configuration is resolved lazily to ensure local.settings.json
-         * environment variables are available.
-         */
-        services.AddSingleton<CosmosClient>(sp =>
+        // Add Application Insights
+        // services.AddApplicationInsightsTelemetryWorkerService();
+        // services.ConfigureFunctionsApplicationInsights();
+
+        // Get environment variables
+        var connectionString = Environment.GetEnvironmentVariable("Cosmos__ConnectionString");
+        var databaseId = Environment.GetEnvironmentVariable("Cosmos__DatabaseId");
+        var tenantsContainerId = Environment.GetEnvironmentVariable("Cosmos__TenantsContainerId") ?? "Tenants";
+        var companiesContainerId = Environment.GetEnvironmentVariable("Cosmos__CompaniesContainerId") ?? "Companies";
+        var transactionsContainerId = Environment.GetEnvironmentVariable("Cosmos__TransactionsContainerId") ?? "Transactions";
+        var realizationsContainerId = Environment.GetEnvironmentVariable("Cosmos__RealizationsContainerId") ?? "Realizations";
+
+        // Validate required environment variables
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new InvalidOperationException("Cosmos__ConnectionString is missing from environment variables.");
+        if (string.IsNullOrWhiteSpace(databaseId))
+            throw new InvalidOperationException("Cosmos__DatabaseId is missing from environment variables.");
+
+        // Register CosmosClient as singleton
+        services.AddSingleton<CosmosClient>(_ => new CosmosClient(connectionString));
+
+        // Register specific repository instances for each entity type with factory pattern
+        services.AddScoped<ICosmosRepository<Tenant>>(sp =>
         {
-            var config = sp.GetRequiredService<IConfiguration>();
-
-            string cosmosConn = config["Cosmos__ConnectionString"]
-                ?? throw new InvalidOperationException("Cosmos__ConnectionString missing");
-
-            return new CosmosClient(
-                cosmosConn,
-                new CosmosClientOptions
-                {
-                    ApplicationName = "TransactionFuncApp"
-                });
-        });
-
-        /*
-         * Repositories
-         * Each repository resolves configuration at runtime.
-         */
-        services.AddSingleton<ICosmosRepository<Tenant>>(sp =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
             var client = sp.GetRequiredService<CosmosClient>();
-
-            return new CosmosRepository<Tenant>(
-                client,
-                config["Cosmos__DatabaseId"] ?? "MyDatabase",
-                config["Cosmos__TenantsContainerId"] ?? "Tenants");
+            return new CosmosRepository<Tenant>(client, databaseId, tenantsContainerId);
         });
 
-        services.AddSingleton<ICosmosRepository<Company>>(sp =>
+        services.AddScoped<ICosmosRepository<Company>>(sp =>
         {
-            var config = sp.GetRequiredService<IConfiguration>();
             var client = sp.GetRequiredService<CosmosClient>();
-
-            return new CosmosRepository<Company>(
-                client,
-                config["Cosmos__DatabaseId"] ?? "MyDatabase",
-                config["Cosmos__CompaniesContainerId"] ?? "Companies");
+            return new CosmosRepository<Company>(client, databaseId, companiesContainerId);
         });
 
-        services.AddSingleton<ICosmosRepository<Transaction>>(sp =>
+        services.AddScoped<ICosmosRepository<Transaction>>(sp =>
         {
-            var config = sp.GetRequiredService<IConfiguration>();
             var client = sp.GetRequiredService<CosmosClient>();
-
-            return new CosmosRepository<Transaction>(
-                client,
-                config["Cosmos__DatabaseId"] ?? "MyDatabase",
-                config["Cosmos__TransactionsContainerId"] ?? "Transactions");
+            return new CosmosRepository<Transaction>(client, databaseId, transactionsContainerId);
         });
 
-        services.AddSingleton<ICosmosRepository<Realization>>(sp =>
+        services.AddScoped<ICosmosRepository<Realization>>(sp =>
         {
-            var config = sp.GetRequiredService<IConfiguration>();
             var client = sp.GetRequiredService<CosmosClient>();
-
-            return new CosmosRepository<Realization>(
-                client,
-                config["Cosmos__DatabaseId"] ?? "MyDatabase",
-                config["Cosmos__RealizationsContainerId"] ?? "Realizations");
+            return new CosmosRepository<Realization>(client, databaseId, realizationsContainerId);
         });
 
-        /*
-         * Domain Services
-         */
+        // Register FluentValidation validators
+        services.AddValidatorsFromAssemblyContaining<TenantValidator>();
+
+        // Register services
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<ITransactionService, TransactionService>();
         services.AddScoped<IRealizationService, RealizationService>();
-
-        /*
-         * FluentValidation
-         */
-        services.AddValidatorsFromAssemblyContaining<TenantValidator>();
-        services.AddFluentValidationAutoValidation();
     })
     .Build();
 

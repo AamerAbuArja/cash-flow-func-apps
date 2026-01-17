@@ -29,6 +29,7 @@ public class TenantService : ITenantService
         var tenant = new Tenant
         {
             id = Guid.NewGuid().ToString(),
+            tenantId = dto.tenantId,
             name = dto.name,
             baseCurrency = dto.baseCurrency,
             subscription = dto.subscription

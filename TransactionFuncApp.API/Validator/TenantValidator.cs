@@ -8,6 +8,7 @@ public class TenantValidator : AbstractValidator<CreateTenantRequest>
     public TenantValidator()
     {
         RuleFor(x => x.name).NotEmpty().WithMessage("Tenant name is required").MaximumLength(200);
+        RuleFor(x => x.tenantId).NotEmpty().WithMessage("Tenant ID is required").MaximumLength(20).MinimumLength(5);
         RuleFor(x => x.baseCurrency).MaximumLength(10).When(x => !string.IsNullOrEmpty(x.baseCurrency));
         RuleFor(x => x.subscription).MaximumLength(100).When(x => !string.IsNullOrEmpty(x.subscription));
     }
