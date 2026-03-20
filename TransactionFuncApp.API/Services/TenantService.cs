@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.Azure.Cosmos;
 using TransactionFuncApp.API.DTOs;
 using TransactionFuncApp.API.Models;
 using TransactionFuncApp.API.Repositories;
@@ -35,18 +36,18 @@ public class TenantService : ITenantService
             subscription = dto.subscription
         };
 
-        await _repo.CreateAsync(tenant, tenant.PartitionKey);
+        await _repo.CreateAsync(tenant, new PartitionKey(tenant.tenantId));
         return tenant;
     }
 
     public async Task<Tenant?> GetAsync(string tenantId)
     {
-        return await _repo.GetAsync(tenantId, tenantId);
+        return await _repo.GetAsync(tenantId, new PartitionKey(tenantId));
     }
 
     public async Task<Tenant?> UpdateAsync(string tenantId, UpdateTenantRequest dto)
     {
-        var current = await _repo.GetAsync(tenantId, tenantId);
+        var current = await _repo.GetAsync(tenantId, new PartitionKey(tenantId));
         if (current == null) return null;
 
         // Optionally validate update fields
@@ -60,12 +61,12 @@ public class TenantService : ITenantService
         current.baseCurrency = dto.baseCurrency;
         current.subscription = dto.subscription;
 
-        await _repo.UpsertAsync(current, current.PartitionKey);
+        await _repo.UpsertAsync(current, new PartitionKey(tenantId));
         return current;
     }
 
     public async Task DeleteAsync(string tenantId)
     {
-        await _repo.DeleteAsync(tenantId, tenantId);
+        await _repo.DeleteAsync(tenantId, new PartitionKey(tenantId));
     }
 }

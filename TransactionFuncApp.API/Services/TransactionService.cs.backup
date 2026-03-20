@@ -3,7 +3,8 @@ using Microsoft.Azure.Cosmos;
 using TransactionFuncApp.API.DTOs;
 using TransactionFuncApp.API.Models;
 using TransactionFuncApp.API.Repositories;
-using TransactionFuncApp.API.Enums.TransactionEnums;
+using TransactionFuncApp.API.Enums;
+
 
 namespace TransactionFuncApp.API.Services;
 
@@ -38,24 +39,19 @@ public class TransactionService : ITransactionService
             relatedTo = dto.relatedTo,
             amount = dto.amount,
             currency = dto.currency,
-            installmentMode = dto.installmentMode,
+            installmentMode = dto.installmentMode ?? InstallmentMode.None,
             installmentCount = dto.installmentCount,
             installmentInterval = dto.installmentInterval,
             dueDate = dto.dueDate,
             createdAt = DateTimeOffset.UtcNow
         };
 
-        var partitionKey = new PartitionKeyBuilder()
-            .Add(tenantId)
-            .Add(companyId)
-            .Build();
+        await _trxRepo.CreateAsync(trx, tenantId);
 
-        await _trxRepo.CreateAsync(trx, partitionKey); // ✅ no .ToString()
-
-        if (dto.installmentMode == InstallmentMode.Auto &&
-            trx.installmentCount.GetValueOrDefault() > 0)
+        // Create realizations if needed
+        if (dto.installmentMode == InstallmentMode.Auto && trx.installmentCount.GetValueOrDefault() > 0)
         {
-            //await CreateInstallmentRealizations(trx);
+            await CreateInstallmentRealizations(trx);
         }
 
         return trx;
@@ -63,12 +59,7 @@ public class TransactionService : ITransactionService
 
     public async Task<Transaction?> GetAsync(string tenantId, string companyId, string transactionId)
     {
-        var partitionKey = new PartitionKeyBuilder()
-            .Add(tenantId)
-            .Add(companyId)
-            .Build();
-
-        var t = await _trxRepo.GetAsync(transactionId, partitionKey); // ✅
+        var t = await _trxRepo.GetAsync(transactionId, tenantId);
         if (t == null) return null;
         if (t.companyId != companyId) return null;
         return t;
@@ -76,67 +67,59 @@ public class TransactionService : ITransactionService
 
     public async Task<Transaction?> UpdateAsync(string tenantId, string companyId, string transactionId, UpdateTransactionRequest dto)
     {
-        var partitionKey = new PartitionKeyBuilder()
-            .Add(tenantId)
-            .Add(companyId)
-            .Build();
+        var current = await _trxRepo.GetAsync(transactionId, tenantId);
+        if (current == null) return null;
+        if (current.companyId != companyId) return null;
 
-        var current = await _trxRepo.GetAsync(transactionId, partitionKey); // ✅
-        if (current == null || current.companyId != companyId)
-            return null;
-
+        // Simple update; you can add a validator for UpdateTransactionRequest if desired
         current.type = dto.type;
         current.category = dto.category;
         current.description = dto.description;
         current.relatedTo = dto.relatedTo;
         current.amount = dto.amount;
         current.currency = dto.currency;
-        current.installmentMode = dto.installmentMode;
+        current.installmentMode = dto.installmentMode ?? InstallmentMode.None;
         current.installmentCount = dto.installmentCount;
         current.installmentInterval = dto.installmentInterval;
         current.dueDate = dto.dueDate;
 
-        await _trxRepo.UpsertAsync(current, partitionKey); // ✅
+        await _trxRepo.UpsertAsync(current, tenantId);
+
+        // Optionally adjust realizations if installment count changed — not implemented automatically here.
+        // Consider adding reconciliation logic (create additional realizations or mark extras as canceled).
+
         return current;
     }
 
     public async Task DeleteAsync(string tenantId, string companyId, string transactionId)
     {
-        var partitionKey = new PartitionKeyBuilder()
-            .Add(tenantId)
-            .Add(companyId)
-            .Build();
-
-        await _trxRepo.DeleteAsync(transactionId, partitionKey); // ✅
+        // Note: does not cascade delete realizations. Consider cascading or background cleanup.
+        await _trxRepo.DeleteAsync(transactionId, tenantId);
     }
 
     public async Task<IEnumerable<Transaction>> ListByCompanyAsync(string tenantId, string companyId)
     {
-        var partitionKey = new PartitionKeyBuilder()
-            .Add(tenantId)
-            .Add(companyId)
-            .Build();
-
+        
         var query = new QueryDefinition(
             "SELECT * FROM c WHERE c.companyId = @companyId")
             .WithParameter("@companyId", companyId);
 
-        return await _trxRepo.QueryAsync(query, partitionKey); // ✅
+        var list = await _trxRepo.QueryAsync(query, tenantId);
+        return list;
     }
 
-/*
     private async Task CreateInstallmentRealizations(Transaction trx)
     {
         var count = trx.installmentCount.GetValueOrDefault();
         var intervalDays = trx.installmentInterval.GetValueOrDefault();
 
+        // divide amount evenly; last installment gets remainder
         var totalCents = (long)(trx.amount * 100);
         var baseCents = totalCents / count;
         var remainder = totalCents - (baseCents * count);
 
-        DateTime baseDate;
-        if (!string.IsNullOrEmpty(trx.dueDate) &&
-            DateTime.TryParse(trx.dueDate, out var parsed))
+        DateTime? baseDate = null;
+        if (!string.IsNullOrEmpty(trx.dueDate) && DateTime.TryParse(trx.dueDate, out var parsed))
             baseDate = parsed;
         else
             baseDate = DateTime.UtcNow.Date;
@@ -153,19 +136,18 @@ public class TransactionService : ITransactionService
                 companyId = trx.companyId,
                 transactionId = trx.id,
                 installmentNum = i,
-                //type = trx.type,
+                type = trx.type,
                 flow = null,
                 status = "Pending",
                 amount = installmentAmount,
                 currency = trx.currency,
                 fxRate = null,
                 amountInBase = null,
-                expectedDate = baseDate.AddDays((i - 1) * intervalDays),
+                expectedDate = baseDate?.AddDays((i - 1) * intervalDays),
                 createdAt = DateTimeOffset.UtcNow
             };
 
             await _realRepo.CreateAsync(realization, realization.tenantId);
         }
     }
-*/
 }

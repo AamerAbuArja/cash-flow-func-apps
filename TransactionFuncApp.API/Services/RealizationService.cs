@@ -23,8 +23,13 @@ public class RealizationService : IRealizationService
 
     public async Task<Realization> CreateAsync(string tenantId, string companyId, string transactionId, CreateRealizationRequest dto)
     {
+        var tranpPrtitionKey = new PartitionKeyBuilder()
+            .Add(tenantId)
+            .Add(companyId)
+            .Build();
+
         // validate parent transaction exists and belongs to company/tenant
-        var trx = await _trxRepo.GetAsync(transactionId, tenantId);
+        var trx = await _trxRepo.GetAsync(transactionId, tranpPrtitionKey);
         if (trx == null || trx.companyId != companyId)
             throw new InvalidOperationException("Transaction not found or does not belong to the specified company.");
 
@@ -48,14 +53,25 @@ public class RealizationService : IRealizationService
             expectedDate = dto.expectedDate,
             createdAt = DateTimeOffset.UtcNow
         };
+        var partitionKey = new PartitionKeyBuilder()
+            .Add(tenantId)
+            .Add(companyId)
+            .Add(transactionId)
+            .Build();
 
-        await _repo.CreateAsync(realization, tenantId);
+        await _repo.CreateAsync(realization, partitionKey);
         return realization;
     }
 
     public async Task<Realization?> GetAsync(string tenantId, string companyId, string transactionId, string realizationId)
     {
-        var r = await _repo.GetAsync(realizationId, tenantId);
+        var partitionKey = new PartitionKeyBuilder()
+            .Add(tenantId)
+            .Add(companyId)
+            .Add(transactionId)
+            .Build();
+
+        var r = await _repo.GetAsync(realizationId, partitionKey);
         if (r == null) return null;
         if (r.companyId != companyId || r.transactionId != transactionId) return null;
         return r;
@@ -63,7 +79,12 @@ public class RealizationService : IRealizationService
 
     public async Task<Realization?> UpdateAsync(string tenantId, string companyId, string transactionId, string realizationId, UpdateRealizationRequest dto)
     {
-        var current = await _repo.GetAsync(realizationId, tenantId);
+        var partitionKey = new PartitionKeyBuilder()
+            .Add(tenantId)
+            .Add(companyId)
+            .Add(transactionId)
+            .Build();
+        var current = await _repo.GetAsync(realizationId, partitionKey);
         if (current == null) return null;
         if (current.companyId != companyId || current.transactionId != transactionId) return null;
 
@@ -75,24 +96,34 @@ public class RealizationService : IRealizationService
         if (dto.actualDate.HasValue) current.actualDate = dto.actualDate;
         current.updatedAt = DateTimeOffset.UtcNow;
 
-        await _repo.UpsertAsync(current, tenantId);
+        await _repo.UpsertAsync(current, partitionKey);
         return current;
     }
 
     public async Task DeleteAsync(string tenantId, string companyId, string transactionId, string realizationId)
     {
         // optional safety checks could be added
-        await _repo.DeleteAsync(realizationId, tenantId);
+        var partitionKey = new PartitionKeyBuilder()
+            .Add(tenantId)
+            .Add(companyId)
+            .Add(transactionId)
+            .Build();
+        await _repo.DeleteAsync(realizationId, partitionKey);
     }
 
     public async Task<IEnumerable<Realization>> ListByTransactionAsync(string tenantId, string companyId, string transactionId)
     {
+        var partitionKey = new PartitionKeyBuilder()
+                .Add(tenantId)
+                .Add(companyId)
+                .Add(transactionId)
+                .Build();
         var query = new QueryDefinition(
             "SELECT * FROM c WHERE c.companyId = @companyId AND c.transactionId = @transactionId")
             .WithParameter("@companyId", companyId)
             .WithParameter("@transactionId", transactionId);
 
-        return await _repo.QueryAsync(query, tenantId);
+        return await _repo.QueryAsync(query, partitionKey);
     }
 
 }

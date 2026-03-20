@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.Azure.Cosmos;
 using TransactionFuncApp.API.DTOs;
 using TransactionFuncApp.API.Models;
 using TransactionFuncApp.API.Repositories;
@@ -24,7 +25,7 @@ public class CompanyService : ICompanyService
 
         var company = new Company
         {
-            id = Guid.NewGuid().ToString(),
+            id = dto.companyId,
             tenantId = tenantId,
             name = dto.name,
             baseCurrency = dto.baseCurrency,
@@ -33,20 +34,20 @@ public class CompanyService : ICompanyService
             industry = dto.industry
         };
 
-        await _repo.CreateAsync(company, tenantId);
+        await _repo.CreateAsync(company, new PartitionKey(tenantId));
         return company;
     }
 
     public async Task<IEnumerable<Company>> ListAsync(string tenantId)
     {
         string q = "SELECT * FROM c";
-        var list = await _repo.QueryAsync(q, tenantId);
+        var list = await _repo.QueryAsync(q, new PartitionKey(tenantId));
         return list;
     }
 
     public async Task<Company?> GetAsync(string tenantId, string companyId)
     {
-        var c = await _repo.GetAsync(companyId, tenantId);
+        var c = await _repo.GetAsync(companyId, new PartitionKey(tenantId));
         if (c == null) return null;
         if (c.tenantId != tenantId) return null; // safety check
         return c;
@@ -54,7 +55,7 @@ public class CompanyService : ICompanyService
 
     public async Task<Company?> UpdateAsync(string tenantId, string companyId, UpdateCompanyRequest dto)
     {
-        var current = await _repo.GetAsync(companyId, tenantId);
+        var current = await _repo.GetAsync(companyId, new PartitionKey(tenantId));
         if (current == null) return null;
         if (current.tenantId != tenantId) return null;
 
@@ -76,12 +77,12 @@ public class CompanyService : ICompanyService
         current.closingBalance = dto.closingBalance;
         current.industry = dto.industry;
 
-        await _repo.UpsertAsync(current, tenantId);
+        await _repo.UpsertAsync(current, new PartitionKey(tenantId));
         return current;
     }
 
     public async Task DeleteAsync(string tenantId, string companyId)
     {
-        await _repo.DeleteAsync(companyId, tenantId);
+        await _repo.DeleteAsync(companyId, new PartitionKey(tenantId));
     }
 }

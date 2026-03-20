@@ -2,38 +2,71 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Azure.Functions.Worker;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using TransactionFuncApp.API.Repositories;
 using TransactionFuncApp.API.Services;
 using TransactionFuncApp.API.Validators;
 using TransactionFuncApp.API.Models;
+using Azure.Core.Serialization;
+
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWorkerDefaults(worker =>
+    {
+        // Configure JSON serialization globally for the worker
+        worker.Serializer = new JsonObjectSerializer(new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+
+            // IMPORTANT:
+            // - Accept enum strings ("Income")
+            // - Reject numeric enum values (0,1,...)
+            Converters =
+            {
+                new JsonStringEnumConverter(
+                    JsonNamingPolicy.CamelCase,
+                    allowIntegerValues: false
+                )
+            }
+        });
+    })
     .ConfigureServices(services =>
     {
-        // Add Application Insights
-        // services.AddApplicationInsightsTelemetryWorkerService();
-        // services.ConfigureFunctionsApplicationInsights();
-
-        // Get environment variables
+        // -------------------------------------------------
+        // Environment Variables
+        // -------------------------------------------------
         var connectionString = Environment.GetEnvironmentVariable("Cosmos__ConnectionString");
         var databaseId = Environment.GetEnvironmentVariable("Cosmos__DatabaseId");
-        var tenantsContainerId = Environment.GetEnvironmentVariable("Cosmos__TenantsContainerId") ?? "Tenants";
-        var companiesContainerId = Environment.GetEnvironmentVariable("Cosmos__CompaniesContainerId") ?? "Companies";
-        var transactionsContainerId = Environment.GetEnvironmentVariable("Cosmos__TransactionsContainerId") ?? "Transactions";
-        var realizationsContainerId = Environment.GetEnvironmentVariable("Cosmos__RealizationsContainerId") ?? "Realizations";
+        var tenantsContainerId = Environment.GetEnvironmentVariable("Cosmos__TenantsContainerId") ?? "Tenant";
+        var companiesContainerId = Environment.GetEnvironmentVariable("Cosmos__CompaniesContainerId") ?? "Company";
+        var transactionsContainerId = Environment.GetEnvironmentVariable("Cosmos__TransactionsContainerId") ?? "Transaction";
+        var realizationsContainerId = Environment.GetEnvironmentVariable("Cosmos__RealizationsContainerId") ?? "Realization";
 
-        // Validate required environment variables
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new InvalidOperationException("Cosmos__ConnectionString is missing from environment variables.");
+
         if (string.IsNullOrWhiteSpace(databaseId))
             throw new InvalidOperationException("Cosmos__DatabaseId is missing from environment variables.");
 
-        // Register CosmosClient as singleton
-        services.AddSingleton<CosmosClient>(_ => new CosmosClient(connectionString));
+        // -------------------------------------------------
+        // Cosmos Client (Singleton)
+        // -------------------------------------------------
+        services.AddSingleton(_ =>
+        {
+            return new CosmosClient(connectionString, new CosmosClientOptions
+            {
+                SerializerOptions = new CosmosSerializationOptions
+                {
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                }
+            });
+        });
 
-        // Register specific repository instances for each entity type with factory pattern
+        // -------------------------------------------------
+        // Generic Repository Registrations
+        // -------------------------------------------------
         services.AddScoped<ICosmosRepository<Tenant>>(sp =>
         {
             var client = sp.GetRequiredService<CosmosClient>();
@@ -58,10 +91,14 @@ var host = new HostBuilder()
             return new CosmosRepository<Realization>(client, databaseId, realizationsContainerId);
         });
 
-        // Register FluentValidation validators
+        // -------------------------------------------------
+        // FluentValidation
+        // -------------------------------------------------
         services.AddValidatorsFromAssemblyContaining<TenantValidator>();
 
-        // Register services
+        // -------------------------------------------------
+        // Domain Services
+        // -------------------------------------------------
         services.AddScoped<ITenantService, TenantService>();
         services.AddScoped<ICompanyService, CompanyService>();
         services.AddScoped<ITransactionService, TransactionService>();

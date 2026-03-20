@@ -23,5 +23,6 @@ public class Realization
     public DateTimeOffset createdAt { get; set; }
     public DateTimeOffset? updatedAt { get; set; }
 
-    public string PartitionKey => tenantId;
+    // Hierarchical partition key: [tenantId, companyId, transactionId]
+    public string PartitionKey => $"[\"{tenantId}\",\"{companyId}\",\"{transactionId}\"]";
 }
