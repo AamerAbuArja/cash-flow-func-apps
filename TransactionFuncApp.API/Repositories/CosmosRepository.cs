@@ -76,4 +76,35 @@ public class CosmosRepository<T> : ICosmosRepository<T>
     {
         await _container.DeleteItemAsync<T>(id, partitionKey);
     }
+
+    public async Task BatchCreateAsync(IEnumerable<T> entities, PartitionKey partitionKey)
+    {
+        const int maxBatchSize = 100;
+        var chunks = entities
+            .Select((item, index) => new { item, index })
+            .GroupBy(x => x.index / maxBatchSize)
+            .Select(g => g.Select(x => x.item).ToList());
+
+        foreach (var chunk in chunks)
+        {
+            var batch = _container.CreateTransactionalBatch(partitionKey);
+
+            foreach (var entity in chunk)
+            {
+                batch.CreateItem(entity);
+            }
+
+            using var response = await batch.ExecuteAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new CosmosException(
+                    $"Batch create failed with status {response.StatusCode}",
+                    response.StatusCode,
+                    0,
+                    response.ActivityId,
+                    response.RequestCharge);
+            }
+        }
+    }
 }

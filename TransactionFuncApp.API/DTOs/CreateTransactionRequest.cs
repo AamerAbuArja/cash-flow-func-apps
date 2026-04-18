@@ -17,14 +17,28 @@ public class CreateTransactionRequest
     public decimal amount { get; set; }
     public string currency { get; set; } = default!;
 
+    public string? dueDate { get; set; }
+
+    // -------------------------
+    // Installment Configuration
+    // -------------------------
+
     public InstallmentMode installmentMode { get; set; } = InstallmentMode.None;
+
+    // Auto
     public int? installmentCount { get; set; }
     public int? installmentInterval { get; set; } // in days
 
-    /// <summary>
-    /// ISO date string (YYYY-MM-DD), optional
-    /// </summary>
-    public string? dueDate { get; set; }
+    // Manual
+    public List<ManualInstallmentDto>? manualInstallments { get; set; }
+
+    // Percentage
+    public List<PercentageInstallmentDto>? percentageInstallments { get; set; }
+
+    // Recurring
+    public string? recurringFrequency { get; set; }  // "Weekly" | "Monthly" | "Quarterly" | "Yearly"
+    public int? recurringEndAfter { get; set; }       // max occurrence count, null = indefinite
+    public string? recurringEndDate { get; set; }     // hard stop date (YYYY-MM-DD), alternative to EndAfter
 
     public DateTimeOffset createdAt { get; set; }
 }

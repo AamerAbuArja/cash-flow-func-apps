@@ -2,7 +2,7 @@
   {
     "name": "CreateTransaction",
     "scriptFile": "TransactionFuncApp.API.dll",
-    "entryPoint": "TransactionsHttpFunctions.CreateTransaction",
+    "entryPoint": "TransactionFuncApp.API.Functions.Transactions.CreateTransactionFunction.Run",
     "language": "dotnet-isolated",
     "properties": {
       "IsCodeless": false
@@ -16,61 +16,7 @@
         "methods": [
           "post"
         ],
-        "route": "transactions",
-        "properties": {}
-      },
-      {
-        "name": "$return",
-        "type": "http",
-        "direction": "Out"
-      }
-    ]
-  },
-  {
-    "name": "CreateBulkTransactions",
-    "scriptFile": "TransactionFuncApp.API.dll",
-    "entryPoint": "TransactionsHttpFunctions.CreateBulkTransactions",
-    "language": "dotnet-isolated",
-    "properties": {
-      "IsCodeless": false
-    },
-    "bindings": [
-      {
-        "name": "req",
-        "direction": "In",
-        "type": "httpTrigger",
-        "authLevel": "Function",
-        "methods": [
-          "post"
-        ],
-        "route": "transactions/bulk",
-        "properties": {}
-      },
-      {
-        "name": "$return",
-        "type": "http",
-        "direction": "Out"
-      }
-    ]
-  },
-  {
-    "name": "UpdateTransaction",
-    "scriptFile": "TransactionFuncApp.API.dll",
-    "entryPoint": "TransactionsHttpFunctions.UpdateTransaction",
-    "language": "dotnet-isolated",
-    "properties": {
-      "IsCodeless": false
-    },
-    "bindings": [
-      {
-        "name": "req",
-        "direction": "In",
-        "type": "httpTrigger",
-        "authLevel": "Function",
-        "methods": [
-          "put"
-        ],
-        "route": "transactions/{id}",
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions",
         "properties": {}
       },
       {
@@ -83,7 +29,7 @@
   {
     "name": "DeleteTransaction",
     "scriptFile": "TransactionFuncApp.API.dll",
-    "entryPoint": "TransactionsHttpFunctions.DeleteTransaction",
+    "entryPoint": "TransactionFuncApp.API.Functions.Transactions.DeleteTransactionFunction.Run",
     "language": "dotnet-isolated",
     "properties": {
       "IsCodeless": false
@@ -97,7 +43,412 @@
         "methods": [
           "delete"
         ],
-        "route": "transactions/{id}",
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "GetTransaction",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Transactions.GetTransactionFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "get"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "UpdateTransaction",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Transactions.UpdateTransactionFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "put"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "CreateTenant",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Tenants.CreateTenant.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "post"
+        ],
+        "route": "tenants",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "DeleteTenant",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Tenants.DeleteTenant.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "delete"
+        ],
+        "route": "tenants/{tenantId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "GetTenant",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Tenants.GetTenant.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "get"
+        ],
+        "route": "tenants/{tenantId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "UpdateTenant",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Tenants.UpdateTenant.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "put"
+        ],
+        "route": "tenants/{tenantId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "CreateRealization",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Realizations.CreateRealizationFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "post"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}/realizations",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "DeleteRealization",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Realizations.DeleteRealizationFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "delete"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}/realizations/{realizationId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "GetRealization",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Realizations.GetRealizationFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "get"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}/realizations/{realizationId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "ListRealizationsByTransaction",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Realizations.ListRealizationsByTransaction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "get"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}/realizations",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "UpdateRealization",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Realizations.UpdateRealizationFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "put"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}/transactions/{transactionId}/realizations/{realizationId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "CreateCompany",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Companies.CreateCompany.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "post"
+        ],
+        "route": "tenants/{tenantId}/companies",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "DeleteCompany",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Companies.DeleteCompany.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "delete"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "GetCompany",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Companies.GetCompany.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "get"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "UpdateCompany",
+    "scriptFile": "TransactionFuncApp.API.dll",
+    "entryPoint": "TransactionFuncApp.API.Functions.Companies.UpdateCompany.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Function",
+        "methods": [
+          "put"
+        ],
+        "route": "tenants/{tenantId}/companies/{companyId}",
         "properties": {}
       },
       {

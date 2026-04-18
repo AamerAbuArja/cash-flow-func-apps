@@ -13,11 +13,24 @@ public class Transaction
     public string? relatedTo { get; set; }
     public decimal amount { get; set; }
     public string currency { get; set; } = default!;
-    public InstallmentMode installmentMode { get; set; } = InstallmentMode.None;
-    public int? installmentCount { get; set; }
-    public int? installmentInterval { get; set; }         // in days (assumption)
-    public string? dueDate { get; set; }                  // ISO date string (YYYY-MM-DD) optional
+    public string? dueDate { get; set; }                  // ISO date string (YYYY-MM-DD), optional
     public DateTimeOffset createdAt { get; set; }
+
+    // -------------------------
+    // Installment Configuration
+    // -------------------------
+
+    public InstallmentMode installmentMode { get; set; } = InstallmentMode.None;
+
+    // Auto
+    public int? installmentCount { get; set; }
+    public int? installmentInterval { get; set; }         // in days
+
+    // Recurring
+    public string? recurringFrequency { get; set; }       // "Weekly" | "Monthly" | "Quarterly" | "Yearly"
+    public int? recurringEndAfter { get; set; }           // max occurrence count, null = indefinite
+    public string? recurringEndDate { get; set; }         // hard stop date (YYYY-MM-DD), alternative to EndAfter
+    public DateTimeOffset? recurringCancelledAt { get; set; }
 
     // Hierarchical partition key: [tenantId, companyId]
     public string PartitionKey => $"[\"{tenantId}\",\"{companyId}\"]";

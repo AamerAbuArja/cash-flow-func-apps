@@ -10,4 +10,5 @@ public interface ICosmosRepository<T>
     Task CreateAsync(T entity, PartitionKey partitionKey);
     Task UpsertAsync(T entity, PartitionKey partitionKey);
     Task DeleteAsync(string id, PartitionKey partitionKey);
+    Task BatchCreateAsync(IEnumerable<T> entities, PartitionKey partitionKey);
 }

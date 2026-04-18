@@ -53,6 +53,7 @@ public class RealizationService : IRealizationService
             expectedDate = dto.expectedDate,
             createdAt = DateTimeOffset.UtcNow
         };
+
         var partitionKey = new PartitionKeyBuilder()
             .Add(tenantId)
             .Add(companyId)
@@ -60,6 +61,25 @@ public class RealizationService : IRealizationService
             .Build();
 
         await _repo.CreateAsync(realization, partitionKey);
+        return realization;
+    }
+
+    public async Task<Realization> CreateAsync(Realization realization, PartitionKey partitionKey)
+    {
+        // Validate parent transaction exists within tenant/company scope
+        var tranPartitionKey = new PartitionKeyBuilder()
+            .Add(realization.tenantId)
+            .Add(realization.companyId)
+            .Build();
+
+        var trx = await _trxRepo.GetAsync(realization.transactionId, tranPartitionKey);
+
+        if (trx == null || trx.companyId != realization.companyId)
+            throw new InvalidOperationException("Transaction not found or does not belong to the specified company.");
+
+        // Persist directly (caller is responsible for constructing a valid entity)
+        await _repo.CreateAsync(realization, partitionKey);
+
         return realization;
     }
 
